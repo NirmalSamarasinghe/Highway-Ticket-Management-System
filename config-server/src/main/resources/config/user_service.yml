@@ -2,7 +2,7 @@ server:
   port: 7071
 spring:
   application:
-    name: user-service
+    name: user_service
   datasource:
     url: jdbc:mysql://localhost:3306/userDB?createDatabaseIfNotExists=true
     username: root

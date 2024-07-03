@@ -1,27 +1,29 @@
 package lk.ijse.gdse.aad65.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lk.ijse.gdse.aad65.Enum.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 
-@Entity
+
 @Table(name = "user")
+@Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-@Builder
 public class UserEntity {
     @Id
-    private String userId;
-    private String userName;
-    private String password;
+    private String userCode;
+    private String name;
     private String email;
-    private String phone;
+    private String contact;
     private String address;
-
+    private String nic;
+    private LocalDate registrationDate;
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.AVAILABLE;
 }
