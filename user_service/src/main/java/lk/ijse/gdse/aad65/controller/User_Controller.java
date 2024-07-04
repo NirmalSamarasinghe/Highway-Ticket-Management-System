@@ -1,7 +1,6 @@
 package lk.ijse.gdse.aad65.controller;
 
 import lk.ijse.gdse.aad65.dto.UserDTO;
-import lk.ijse.gdse.aad65.entity.UserEntity;
 import lk.ijse.gdse.aad65.repository.UserServiceDAO;
 import lk.ijse.gdse.aad65.service.UserService;
 import lombok.RequiredArgsConstructor;

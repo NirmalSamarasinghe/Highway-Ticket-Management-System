@@ -1,13 +1,18 @@
 package lk.ijse.gdse.aad65.vehicle_service.controller;
 
+import jakarta.ws.rs.NotFoundException;
 import lk.ijse.gdse.aad65.vehicle_service.dto.VehicleDTO;
 import lk.ijse.gdse.aad65.vehicle_service.service.UserServiceClient;
 import lk.ijse.gdse.aad65.vehicle_service.service.VehicleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +23,7 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
     private final UserServiceClient userServiceClient;
+    private static final Logger logger = LoggerFactory.getLogger(VehicleController.class);
 
     @GetMapping("/health")
     public String healthCheck(){
@@ -36,4 +42,56 @@ public class VehicleController {
         return ResponseEntity.ok(savedVehicle);
     }
 
+    @GetMapping(value = "/{id}",produces = "application/json")
+    public ResponseEntity<?> getVehicle(@PathVariable ("id") String id){
+        return ResponseEntity.ok(vehicleService.getVehicle(id));
+    }
+
+    @GetMapping(produces = "application/json")
+    public ResponseEntity<?> getAllVehicles(){
+        return ResponseEntity.ok(vehicleService.getAllVehicles());
+    }
+    @DeleteMapping(value = "/{id}",produces = "application/json")
+    public ResponseEntity<?> deleteVehicle(@PathVariable("id") String id){
+        vehicleService.deleteVehicle(id);
+        return ResponseEntity.ok("Vehicle deleted successfully");
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateVehicle(@PathVariable("id") String id, @Validated @RequestBody VehicleDTO vehicleDTO, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+                    body(bindingResult.getFieldErrors().get(0).getDefaultMessage());
+        }
+
+        try {
+            vehicleService.updateVehicle(id,vehicleDTO);
+            return ResponseEntity.status(HttpStatus.OK).body("Vehicle Details Updated Successfully.");
+        } catch (NotFoundException exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle not found.");
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
+                    body("Internal server error | Vehicle Details Updated Unsuccessfully.\nMore Reason\n"+exception);
+        }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getVehiclesByUserId(@PathVariable ("userId") String userId){
+        return ResponseEntity.ok(vehicleService.getVehicleByUserId(userId));
+    }
+
+    @GetMapping("/vehicleExists/{vehicleId}")
+    public ResponseEntity<?> isVehicleExists(@PathVariable String vehicleId) {
+        logger.info("Checking user existence with ID: {}", vehicleId);
+        try {
+            boolean isUserExists = vehicleService.isVehicleExists(vehicleId);
+            logger.info("Vehicle Exists: {}", isUserExists);
+            return ResponseEntity.ok(isUserExists);
+        } catch (Exception exception) {
+            logger.error("Error checking vehicle existence: ", exception);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal server error | Unable to check vehicle existence.\nMore Details\n" + exception);
+        }
+    }
 }
